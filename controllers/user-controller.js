@@ -6,14 +6,16 @@ const userController = {
     res.render('signup')
   },
   signUp: (req, res, next) => {
-    if (req.body.password !== req.body.passwordCheck) { throw new Error('Password do not match!') }
+    if (req.body.password !== req.body.passwordCheck) {
+      throw new Error('Password do not match!')
+    }
 
     User.findOne({ where: { email: req.body.email } })
-      .then(user => {
+      .then((user) => {
         if (user) throw new Error('Email already exists!')
         return bcrypt.hash(req.body.password, 10)
       })
-      .then(hash =>
+      .then((hash) =>
         User.create({
           name: req.body.name,
           email: req.body.email,
@@ -24,7 +26,19 @@ const userController = {
         req.flash('success_msg', 'You have successfully signed up!')
         res.redirect('/signin')
       })
-      .catch(error => next(error))
+      .catch((error) => next(error))
+  },
+  signInPage: (req, res) => {
+    res.render('signin')
+  },
+  signIn: (req, res) => {
+    req.flash('success_messages', 'Success to log in!')
+    res.redirect('/restaurants')
+  },
+  logout: (req, res) => {
+    req.flash('success_messages', 'Success to log out!')
+    req.logout()
+    res.redirect('/signin')
   }
 }
 
