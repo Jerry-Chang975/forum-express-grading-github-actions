@@ -13,7 +13,7 @@ passport.use(
     },
     (req, email, password, done) => {
       User.findOne({ where: { email } })
-        .then((user) => {
+        .then(user => {
           if (!user) {
             return done(
               null,
@@ -21,7 +21,7 @@ passport.use(
               req.flash('error_messages', 'Email or Password incorrect.')
             )
           }
-          bcrypt.compare(password, user.password).then((isMatch) => {
+          bcrypt.compare(password, user.password).then(isMatch => {
             if (!isMatch) {
               return done(
                 null,
@@ -32,7 +32,7 @@ passport.use(
             return done(null, user)
           })
         })
-        .catch((err) => done(err, false))
+        .catch(err => done(err, false))
     }
   )
 )
@@ -42,7 +42,7 @@ passport.serializeUser((user, done) => {
 })
 
 passport.deserializeUser((id, done) => {
-  User.findByPk(id).then((user) => {
+  User.findByPk(id).then(user => {
     user = user.toJSON()
     return done(null, user)
   })

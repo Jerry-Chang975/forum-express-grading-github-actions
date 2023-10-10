@@ -11,11 +11,11 @@ const userController = {
     }
 
     User.findOne({ where: { email: req.body.email } })
-      .then((user) => {
+      .then(user => {
         if (user) throw new Error('Email already exists!')
         return bcrypt.hash(req.body.password, 10)
       })
-      .then((hash) =>
+      .then(hash =>
         User.create({
           name: req.body.name,
           email: req.body.email,
@@ -26,7 +26,7 @@ const userController = {
         req.flash('success_msg', 'You have successfully signed up!')
         res.redirect('/signin')
       })
-      .catch((error) => next(error))
+      .catch(error => next(error))
   },
   signInPage: (req, res) => {
     res.render('signin')
