@@ -5,6 +5,14 @@ const adminController = {
       .then(restaurants => res.render('admin/restaurants', { restaurants }))
       .catch(err => next(err))
   },
+  getRestaurant: (req, res, next) => {
+    Restaurant.findByPk(req.params.id, { raw: true })
+      .then(restaurant => {
+        if (!restaurant) throw new Error('Restaurant not found!')
+        return res.render('admin/restaurant', { restaurant })
+      })
+      .catch(err => next(err))
+  },
   createRestaurant: (req, res) => {
     return res.render('admin/create-restaurant')
   },
