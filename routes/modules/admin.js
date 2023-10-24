@@ -3,6 +3,8 @@ const router = express.Router()
 const adminController = require('../../controllers/admin-controller')
 const upload = require('../../middleware/multer')
 
+// restaurants
+
 router.get('/restaurants/create', adminController.createRestaurant)
 router.get('/restaurants/:id/edit', adminController.editRestaurant)
 router.get('/restaurants/:id', adminController.getRestaurant)
@@ -18,6 +20,11 @@ router.post(
   upload.single('image'),
   adminController.postRestaurant
 )
+
+// users
+router.get('/users', adminController.getUsers)
+router.patch('/users/:id', adminController.patchUser)
+
 router.use('/', (req, res) => res.redirect('/admin/restaurants'))
 
 module.exports = router
