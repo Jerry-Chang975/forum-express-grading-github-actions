@@ -22,7 +22,8 @@ module.exports = (sequelize, DataTypes) => {
       category_id: {
         type: DataTypes.INTEGER,
         defaultValue: 1
-      }
+      },
+      viewCounts: { type: DataTypes.INTEGER, defaultValue: 0 }
     },
     {
       sequelize,
