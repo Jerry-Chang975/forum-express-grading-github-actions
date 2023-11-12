@@ -24,7 +24,7 @@
 {{#each restaurant.Comments}}
   {{#if ../user.isAdmin}}
     <form action="/comments/{{this.id}}?_method=DELETE" method="POST" class="float-end">
-    <button type="submit" class="btn btn-danger">Delete</button>
+    <button type="submit" class="btn btn-danger" onclick='return confirm(`確定刪除要此則留言 "{{this.text}}" 嗎?`)'>Delete</button>
     </form>
   {{/if}}
   <blockquote class="blockquote mb-0">
@@ -41,5 +41,5 @@
   </div>
   <input type="hidden" name="restaurantId" value="{{restaurant.id}}">
   <button type="submit" class="btn btn-primary">Submit</button>
-  <a href="javascript:history.back()" class="btn btn-outline-secondary">Back</a>
+  <a href="/restaurants" class="btn btn-outline-secondary">Back</a>
 </form>

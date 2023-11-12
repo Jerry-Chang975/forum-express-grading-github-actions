@@ -33,21 +33,35 @@ const restaurantController = {
         raw: true
       }),
       Category.findAll({ raw: true })
-    ]).then(([restaurants, categories]) => {
-      const data = restaurants.rows.map(r => ({ ...r, description: r.description.substring(0, 50) }))
-      return res.render('restaurants', {
-        restaurants: data,
-        categories,
-        categoryId,
-        pagination: getPagination(limit, page, restaurants.count)
+    ])
+      .then(([restaurants, categories]) => {
+        const data = restaurants.rows.map(r => ({
+          ...r,
+          description: r.description.substring(0, 50)
+        }))
+        return res.render('restaurants', {
+          restaurants: data,
+          categories,
+          categoryId,
+          pagination: getPagination(limit, page, restaurants.count)
+        })
       })
-    }).catch(err => next(err))
+      .catch(err => next(err))
   },
   getDashboard: (req, res, next) => {
-    return Restaurant.findByPk(req.params.id, { include: Category, nest: true, raw: true }).then(restaurant => {
-      if (!restaurant) throw new Error('Restaurant dose not exist!')
-      return res.render('dashboard', { restaurant })
-    }).catch(err => next(err))
+    return Restaurant.findByPk(req.params.id, {
+      include: [Category, Comment],
+      nest: true,
+      raw: false
+    })
+      .then(restaurant => {
+        if (!restaurant) throw new Error('Restaurant dose not exist!')
+        // get comment counts of restaurant
+        restaurant = restaurant.toJSON()
+        restaurant.commentCounts = restaurant.Comments.length
+        return res.render('dashboard', { restaurant })
+      })
+      .catch(err => next(err))
   }
 }
 module.exports = restaurantController
