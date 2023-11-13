@@ -39,6 +39,13 @@ const userController = {
     req.flash('success_messages', 'Success to log out!')
     req.logout()
     res.redirect('/signin')
+  },
+  getUser: (req, res, next) => {
+    return User.findByPk(req.params.id, { raw: true })
+      .then(user => {
+        if (!user) throw new Error('User not found!')
+        res.render('profile', { user })
+      }).catch(err => next(err))
   }
 }
 

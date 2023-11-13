@@ -12,6 +12,7 @@ router.use(generalErrorHandler)
 
 router.use('/admin', authenticatedAdmin, admin)
 
+// users
 router.get('/signup', userController.signUpPage)
 router.post('/signup', userController.signUp)
 router.get('/signin', userController.signInPage)
@@ -24,7 +25,9 @@ router.post(
   userController.signIn
 )
 router.get('/logout', userController.logout)
+router.get('/users/:id', userController.getUser)
 
+// restaurants
 router.get(
   '/restaurants/:id/dashboard',
   authenticated,
