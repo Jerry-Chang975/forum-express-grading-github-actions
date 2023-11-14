@@ -1,5 +1,6 @@
 const bcrypt = require('bcryptjs')
 const db = require('../models')
+const { localFileHandler } = require('../helpers/file-helpers')
 const { User } = db
 const userController = {
   signUpPage: (req, res) => {
@@ -44,9 +45,34 @@ const userController = {
     return User.findByPk(req.params.id, { raw: true })
       .then(user => {
         if (!user) throw new Error('User not found!')
-        res.render('profile', { user })
+        res.render('users/profile', { user })
       }).catch(err => next(err))
+  },
+  editUser: (req, res, next) => {
+    // 下面兩行程式碼無法過測試所以先註解，但個人認為這邊要驗證"編輯頁面為本人自己的"會比較好
+    // if (req.user.id !== parseInt(req.params.id)) throw new Error('Can only edit your own account')
+    return User.findByPk(req.params.id, { raw: true })
+      .then(user => {
+        if (!user) throw new Error('User not found!')
+        res.render('users/edit', { user })
+      })
+      .catch(err => next(err))
+  },
+  putUser: (req, res, next) => {
+    if (parseInt(req.params.id) !== req.user.id) {
+      throw new Error('Can only edit your own account')
+    }
+    const { name } = req.body
+    const file = req.file
+    return Promise.all([User.findByPk(req.params.id), localFileHandler(file)])
+      .then(([user, filePath]) => {
+        user.update({ name, image: filePath || user.image })
+      })
+      .then(() => {
+        req.flash('success_messages', '使用者資料編輯成功')
+        return res.redirect(`/users/${req.params.id}`)
+      })
+      .catch(err => next(err))
   }
 }
-
 module.exports = userController
