@@ -9,6 +9,19 @@
     <p>
       {{user.email}}
     </p>
+    <p>
+      {{user.commentCount}} 已評論餐廳
+    </p>
     <a href="/users/{{user.id}}/edit" class="btn btn-primary">edit</a>
+  </div>
+  <div class="card mt-2">
+    <div class="card-header">
+      {{user.commentCount}} 已評論餐廳
+    </div>
+    <div class="card-body">
+      {{#each user.Comments}}
+        <a href="/restaurants/{{this.Restaurant.id}}"><img class="m-2" width="60" height="60" src="{{this.Restaurant.image}}" alt=""></a>
+      {{/each}}
+    </div>
   </div>
 </div>

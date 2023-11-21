@@ -1,7 +1,7 @@
 const bcrypt = require('bcryptjs')
 const db = require('../models')
 const { localFileHandler } = require('../helpers/file-helpers')
-const { User } = db
+const { User, Comment, Restaurant } = db
 const userController = {
   signUpPage: (req, res) => {
     res.render('signup')
@@ -42,11 +42,18 @@ const userController = {
     res.redirect('/signin')
   },
   getUser: (req, res, next) => {
-    return User.findByPk(req.params.id, { raw: true })
+    return User.findByPk(req.params.id, {
+      include: [{ model: Comment, include: Restaurant }],
+      nest: true,
+      raw: false
+    })
       .then(user => {
         if (!user) throw new Error('User not found!')
+        user = user.toJSON()
+        user.commentCount = user.Comments ? user.Comments.length : 0
         res.render('users/profile', { user })
-      }).catch(err => next(err))
+      })
+      .catch(err => next(err))
   },
   editUser: (req, res, next) => {
     // 下面兩行程式碼無法過測試所以先註解，但個人認為這邊要驗證"編輯頁面為本人自己的"會比較好
