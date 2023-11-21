@@ -51,7 +51,7 @@ const userController = {
         if (!user) throw new Error('User not found!')
         user = user.toJSON()
         user.commentCount = user.Comments ? user.Comments.length : 0
-        res.render('users/profile', { user })
+        res.render('users/profile', { currentUser: user })
       })
       .catch(err => next(err))
   },
@@ -61,7 +61,7 @@ const userController = {
     return User.findByPk(req.params.id, { raw: true })
       .then(user => {
         if (!user) throw new Error('User not found!')
-        res.render('users/edit', { user })
+        res.render('users/edit', { currentUser: user })
       })
       .catch(err => next(err))
   },
