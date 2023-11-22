@@ -1,4 +1,5 @@
 const bcrypt = require('bcryptjs')
+const helpers = require('../helpers/auth-helpers')
 const db = require('../models')
 const { localFileHandler } = require('../helpers/file-helpers')
 const { User, Comment, Restaurant } = db
@@ -51,17 +52,16 @@ const userController = {
         if (!user) throw new Error('User not found!')
         user = user.toJSON()
         user.commentCount = user.Comments ? user.Comments.length : 0
-        res.render('users/profile', { currentUser: user })
+        res.render('users/profile', { user })
       })
       .catch(err => next(err))
   },
   editUser: (req, res, next) => {
-    // 下面兩行程式碼無法過測試所以先註解，但個人認為這邊要驗證"編輯頁面為本人自己的"會比較好
-    // if (req.user.id !== parseInt(req.params.id)) throw new Error('Can only edit your own account')
+    if (helpers.getUser(req).id !== parseInt(req.params.id)) throw new Error('Can only edit your own account')
     return User.findByPk(req.params.id, { raw: true })
       .then(user => {
         if (!user) throw new Error('User not found!')
-        res.render('users/edit', { currentUser: user })
+        res.render('users/edit', { user })
       })
       .catch(err => next(err))
   },

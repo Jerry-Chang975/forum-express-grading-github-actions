@@ -52,7 +52,7 @@ const restaurantController = {
     return Restaurant.findByPk(req.params.id, {
       include: [Category, Comment],
       nest: true,
-      raw: true
+      raw: false
     })
       .then(restaurant => {
         if (!restaurant) throw new Error('Restaurant dose not exist!')

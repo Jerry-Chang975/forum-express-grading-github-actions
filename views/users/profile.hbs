@@ -1,25 +1,25 @@
 <div class="row">
   <div class="col-3">
-    <img width="80%" src="{{currentUser.image}}" alt="user-image">
+    <img width="80%" src="{{user.image}}" alt="user-image">
   </div>
   <div class="col-9">
     <h4>
-      {{currentUser.name}}
+      {{user.name}}
     </h4>
     <p>
-      {{currentUser.email}}
+      {{user.email}}
     </p>
     <p>
-      {{currentUser.commentCount}} 已評論餐廳
+      {{user.commentCount}} 已評論餐廳
     </p>
-    <a href="/users/{{currentUser.id}}/edit" class="btn btn-primary">edit</a>
+    <a href="/users/{{user.id}}/edit" class="btn btn-primary">edit</a>
   </div>
   <div class="card mt-2">
     <div class="card-header">
-      {{currentUser.commentCount}} 已評論餐廳
+      {{user.commentCount}} 已評論餐廳
     </div>
     <div class="card-body">
-      {{#each currentUser.Comments}}
+      {{#each user.Comments}}
         <a href="/restaurants/{{this.Restaurant.id}}"><img class="m-2" width="60" height="60" src="{{this.Restaurant.image}}" alt=""></a>
       {{/each}}
     </div>
