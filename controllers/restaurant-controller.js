@@ -3,16 +3,24 @@ const { getOffset, getPagination } = require('../helpers/pagination-helper')
 const restaurantController = {
   getRestaurant: (req, res, next) => {
     return Restaurant.findByPk(req.params.id, {
-      include: [Category, { model: Comment, include: User }],
+      include: [
+        Category,
+        { model: Comment, include: User },
+        { model: User, as: 'FavoritedUsers' }
+      ],
       nest: true,
       raw: false,
       order: [[{ model: Comment, as: 'Comments' }, 'createdAt', 'DESC']]
     })
       .then(restaurant => {
+        const isFavorited = restaurant.FavoritedUsers.some(f => f.id === req.user.id)
         if (!restaurant) throw new Error('Restaurant dose not exist!')
         // record view counts
         restaurant.increment('view_counts', { by: 1 })
-        return res.render('restaurant', { restaurant: restaurant.toJSON() })
+        return res.render('restaurant', {
+          restaurant: restaurant.toJSON(),
+          isFavorited
+        })
       })
       .catch(err => next(err))
   },
@@ -35,9 +43,11 @@ const restaurantController = {
       Category.findAll({ raw: true })
     ])
       .then(([restaurants, categories]) => {
+        const favoritedRestaurantsId = req.user && req.user.FavoritedRestaurants.map(r => r.id)
         const data = restaurants.rows.map(r => ({
           ...r,
-          description: r.description.substring(0, 50)
+          description: r.description.substring(0, 50),
+          isFavorited: req.user && favoritedRestaurantsId.includes(r.id)
         }))
         return res.render('restaurants', {
           restaurants: data,
