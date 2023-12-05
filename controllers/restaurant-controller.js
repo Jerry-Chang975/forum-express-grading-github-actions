@@ -1,4 +1,4 @@
-const { Restaurant, Category, Comment, User } = require('../models')
+const { Restaurant, Category, Comment, User, Favorite } = require('../models')
 const { getOffset, getPagination } = require('../helpers/pagination-helper')
 const restaurantController = {
   getRestaurant: (req, res, next) => {
@@ -6,7 +6,8 @@ const restaurantController = {
       include: [
         Category,
         { model: Comment, include: User },
-        { model: User, as: 'FavoritedUsers' }
+        { model: User, as: 'FavoritedUsers' },
+        { model: User, as: 'LikedUsers' }
       ],
       nest: true,
       raw: false,
@@ -14,12 +15,14 @@ const restaurantController = {
     })
       .then(restaurant => {
         const isFavorited = restaurant.FavoritedUsers.some(f => f.id === req.user.id)
+        const isLiked = restaurant.LikedUsers.some(like => like.id === req.user.id)
         if (!restaurant) throw new Error('Restaurant dose not exist!')
         // record view counts
         restaurant.increment('view_counts', { by: 1 })
         return res.render('restaurant', {
           restaurant: restaurant.toJSON(),
-          isFavorited
+          isFavorited,
+          isLiked
         })
       })
       .catch(err => next(err))
@@ -44,10 +47,12 @@ const restaurantController = {
     ])
       .then(([restaurants, categories]) => {
         const favoritedRestaurantsId = req.user && req.user.FavoritedRestaurants.map(r => r.id)
+        const likedRestaurantsId = req.user && req.user.LikedRestaurants.map(r => r.id)
         const data = restaurants.rows.map(r => ({
           ...r,
           description: r.description.substring(0, 50),
-          isFavorited: req.user && favoritedRestaurantsId.includes(r.id)
+          isFavorited: req.user && favoritedRestaurantsId.includes(r.id),
+          isLiked: req.user && likedRestaurantsId.includes(r.id)
         }))
         return res.render('restaurants', {
           restaurants: data,
@@ -59,12 +64,19 @@ const restaurantController = {
       .catch(err => next(err))
   },
   getDashboard: (req, res, next) => {
-    return Restaurant.findByPk(req.params.id, {
-      include: [Category, Comment],
-      nest: true,
-      raw: false
-    })
-      .then(restaurant => {
+    return Promise.all([
+      Restaurant.findByPk(req.params.id, {
+        include: [Category, Comment],
+        nest: true,
+        raw: false
+      }),
+      Favorite.findAndCountAll({
+        where: {
+          restaurantId: req.params.id
+        }
+      })
+    ])
+      .then(([restaurant, favorite]) => {
         if (!restaurant) throw new Error('Restaurant dose not exist!')
 
         // get comment counts of restaurant
@@ -72,6 +84,7 @@ const restaurantController = {
         restaurant.commentCounts = restaurant.Comments
           ? restaurant.Comments.length
           : 0
+        restaurant.favoriteCounts = favorite.count
         return res.render('dashboard', { restaurant })
       })
       .catch(err => next(err))
