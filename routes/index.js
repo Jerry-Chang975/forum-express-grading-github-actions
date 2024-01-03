@@ -8,6 +8,7 @@ const userController = require('../controllers/user-controller')
 const commentController = require('../controllers/comment-controller')
 const { authenticated, authenticatedAdmin } = require('../middleware/auth')
 const { generalErrorHandler } = require('../middleware/error-handler')
+const user = require('../models/user')
 
 router.use(generalErrorHandler)
 
@@ -26,6 +27,7 @@ router.post(
   userController.signIn
 )
 router.get('/logout', userController.logout)
+router.get('/users/top', authenticated, userController.getTopUsers)
 router.get('/users/:id/edit', authenticated, userController.editUser)
 router.get('/users/:id', authenticated, userController.getUser)
 router.put(
@@ -67,6 +69,10 @@ router.delete(
   authenticated,
   userController.removeLike
 )
+
+// followship
+router.post('/following/:userId', authenticated, userController.addFollowing)
+router.delete('/following/:userId', authenticated, userController.removeFollowing)
 
 router.get('/', (req, res) => res.redirect('/restaurants'))
 
