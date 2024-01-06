@@ -12,16 +12,76 @@
     <p>
       {{user.commentCount}} 已評論餐廳
     </p>
-    <a href="/users/{{user.id}}/edit" class="btn btn-primary">edit</a>
+    <p>
+      {{user.favoritedCount}} 已收藏餐廳
+    </p>
+    <p>
+      {{user.followingsCount}} followings (已追蹤)
+    </p>
+    <p>
+      {{user.followersCount}} followers (追蹤者)
+    </p>
+    {{#if user.isSelf}}
+      <a href="/users/{{user.id}}/edit" class="btn btn-primary">edit</a>
+    {{/if}}
+
+    {{#if user.isFollowed}}
+      <form action="/following/{{user.id}}?_method=DELETE" method="POST" style="display: contents;">
+        <button type="submit" class="btn btn-danger">
+          取消追蹤
+        </button>
+      </form>
+    {{else}}
+      <form action="/following/{{user.id}}" method="POST" style="display: contents;">
+        <button type="submit" class="btn btn-primary">追蹤</button>
+      </form>
+    {{/if}}
   </div>
-  <div class="card mt-2">
-    <div class="card-header">
-      {{user.commentCount}} 已評論餐廳
+</div>
+<hr />
+<div class="row">
+  <div class="col-4">
+    <div class="card mt-2">
+      <div class="card-header">
+        {{user.followingsCount}} followings (已追蹤)
+      </div>
+      <div class="card-body">
+        {{#each user.Followings}}
+          <a href="/users/{{this.id}}"><img class="m-2" width="60" height="60" src="{{this.image}}" alt=""></a>
+        {{/each}}
+      </div>
     </div>
-    <div class="card-body">
-      {{#each user.Comments}}
-        <a href="/restaurants/{{this.Restaurant.id}}"><img class="m-2" width="60" height="60" src="{{this.Restaurant.image}}" alt=""></a>
-      {{/each}}
+    <div class="card mt-2">
+      <div class="card-header">
+        {{user.followersCount}} followers (追蹤者)
+      </div>
+      <div class="card-body">
+        {{#each user.Followers}}
+          <a href="/users/{{this.id}}"><img class="m-2" width="60" height="60" src="{{this.image}}" alt=""></a>
+        {{/each}}
+      </div>
+    </div>
+  </div>
+  <div class="col-8">
+    <div class="card mt-2">
+      <div class="card-header">
+        {{user.commentCount}} 已評論餐廳
+      </div>
+      <div class="card-body">
+        {{#each user.Comments}}
+          <a href="/restaurants/{{this.Restaurant.id}}"><img class="m-2" width="60" height="60" src="{{this.Restaurant.image}}" alt=""></a>
+        {{/each}}
+      </div>
+    </div>
+    <div class="card mt-2">
+      <div class="card-header">
+        {{user.favoritedCount}} 已收藏餐廳
+      </div>
+      <div class="card-body">
+        {{#each user.FavoritedRestaurants}}
+          <a href="/restaurants/{{this.id}}"><img class="m-2" width="60" height="60" src="{{this.image}}" alt=""></a>
+        {{/each}}
+      </div>
     </div>
   </div>
 </div>

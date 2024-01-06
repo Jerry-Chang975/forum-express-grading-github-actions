@@ -44,14 +44,26 @@ const userController = {
   },
   getUser: (req, res, next) => {
     return User.findByPk(req.params.id, {
-      include: [{ model: Comment, include: Restaurant }],
+      include: [
+        { model: Comment, include: Restaurant },
+        { model: User, as: 'Followers' },
+        { model: User, as: 'Followings' },
+        { model: Restaurant, as: 'FavoritedRestaurants' }
+      ],
       nest: true,
       raw: false
     })
       .then(user => {
         if (!user) throw new Error('User not found!')
-        user = user.toJSON()
-        user.commentCount = user.Comments ? user.Comments.length : 0
+        user = {
+          ...user.toJSON(),
+          commentCount: user.Comments ? user.Comments.length : 0,
+          followingsCount: user.Followings ? user.Followings.length : 0,
+          followersCount: user.Followers ? user.Followers.length : 0,
+          favoritedCount: user.FavoritedRestaurants ? user.FavoritedRestaurants.length : 0,
+          isSelf: req.user ? req.user.id === user.id : false,
+          isFollowed: req.user ? req.user.Followings.some(f => f.id === user.idreq.user) : false
+        }
         res.render('users/profile', { user })
       })
       .catch(err => next(err))
