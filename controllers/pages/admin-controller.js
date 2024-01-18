@@ -1,11 +1,12 @@
 const { Restaurant, Category, User } = require('../../models')
 const { localFileHandler } = require('../../helpers/file-helpers')
+const adminService = require('../../services/admin-services')
 const adminController = {
   // restaurants
   getRestaurants: (req, res, next) => {
-    Restaurant.findAll({ raw: true, nest: true, include: [Category] })
-      .then(restaurants => res.render('admin/restaurants', { restaurants }))
-      .catch(err => next(err))
+    adminService.getRestaurants(req, (err, data) =>
+      err ? next(err) : res.render('admin/restaurants', { restaurants: data })
+    )
   },
   getRestaurant: (req, res, next) => {
     Restaurant.findByPk(req.params.id, {
@@ -63,7 +64,10 @@ const adminController = {
       req.body
     if (!name) throw new Error('Restaurant name is required!')
     const file = req.file
-    return Promise.all([Restaurant.findByPk(req.params.id), localFileHandler(file)])
+    return Promise.all([
+      Restaurant.findByPk(req.params.id),
+      localFileHandler(file)
+    ])
       .then(([restaurant, filePath]) => {
         restaurant.update({
           name,
@@ -139,10 +143,11 @@ const adminController = {
   putCategory: (req, res, next) => {
     const { name } = req.body
     if (!name) throw new Error('Category name is required!')
-    return Category.findByPk(req.params.id).then(category => {
-      if (!category) throw new Error("Category doesn't exist!")
-      return category.update({ name })
-    })
+    return Category.findByPk(req.params.id)
+      .then(category => {
+        if (!category) throw new Error("Category doesn't exist!")
+        return category.update({ name })
+      })
       .then(() => res.redirect('/admin/categories'))
       .catch(err => next(err))
   },
@@ -150,11 +155,12 @@ const adminController = {
     return Promise.all([
       Category.findByPk(req.params.id),
       Restaurant.findAll({ where: { categoryId: req.params.id } })
-    ]).then(([category, restaurants]) => {
-      if (!category) throw new Error("Category doesn't exist!")
-      if (restaurants.length) throw new Error('Category has restaurants!')
-      return category.destroy()
-    })
+    ])
+      .then(([category, restaurants]) => {
+        if (!category) throw new Error("Category doesn't exist!")
+        if (restaurants.length) throw new Error('Category has restaurants!')
+        return category.destroy()
+      })
       .then(() => res.redirect('/admin/categories'))
       .catch(err => next(err))
   }

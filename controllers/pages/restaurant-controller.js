@@ -1,6 +1,4 @@
 const { Restaurant, Category, Comment, User, Favorite } = require('../../models')
-const { getOffset, getPagination } = require('../../helpers/pagination-helper')
-const restaurant = require('../../models/restaurant')
 const restaurantService = require('../../services/restaurant-services')
 const restaurantController = {
   getRestaurant: (req, res, next) => {
