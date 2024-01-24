@@ -86,12 +86,11 @@ const adminController = {
       .catch(err => next(err))
   },
   deleteRestaurant: (req, res, next) => {
-    return Restaurant.destroy({ where: { id: req.params.id } })
-      .then(() => {
-        req.flash('success_messages', 'Restaurant was successfully deleted!')
-        res.redirect('/admin/restaurants')
-      })
-      .catch(err => next(err))
+    adminService.deleteRestaurant(req, (err, data) => {
+      if (err) return next(err)
+      req.session.deletedData = data
+      return res.redirect('/admin/restaurants')
+    })
   },
 
   // users
