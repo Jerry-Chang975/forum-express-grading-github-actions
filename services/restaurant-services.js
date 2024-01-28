@@ -26,7 +26,7 @@ const restaurantService = {
           req.user && req.user.LikedRestaurants.map(r => r.id)
         const data = restaurants.rows.map(r => ({
           ...r,
-          description: r.description.substring(0, 50),
+          description: r.description ? r.description.substring(0, 50) : '',
           isFavorited: req.user && favoritedRestaurantsId.includes(r.id),
           isLiked: req.user && likedRestaurantsId.includes(r.id)
         }))
