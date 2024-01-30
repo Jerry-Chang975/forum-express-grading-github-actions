@@ -1,5 +1,6 @@
 const path = require('path')
 const express = require('express')
+require('dotenv').config()
 const { pages, apis } = require('./routes')
 const handlebars = require('express-handlebars')
 const flash = require('connect-flash')

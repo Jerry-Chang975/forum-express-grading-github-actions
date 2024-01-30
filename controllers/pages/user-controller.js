@@ -1,34 +1,18 @@
-const bcrypt = require('bcryptjs')
 const helpers = require('../../helpers/auth-helpers')
 const db = require('../../models')
 const { localFileHandler } = require('../../helpers/file-helpers')
 const { User, Comment, Restaurant, Favorite, Like, Followship } = db
+const userServices = require('../../services/user-services')
 const userController = {
   signUpPage: (req, res) => {
     res.render('signup')
   },
   signUp: (req, res, next) => {
-    if (req.body.password !== req.body.passwordCheck) {
-      throw new Error('Password do not match!')
-    }
-
-    User.findOne({ where: { email: req.body.email } })
-      .then(user => {
-        if (user) throw new Error('Email already exists!')
-        return bcrypt.hash(req.body.password, 10)
-      })
-      .then(hash =>
-        User.create({
-          name: req.body.name,
-          email: req.body.email,
-          password: hash
-        })
-      )
-      .then(() => {
-        req.flash('success_msg', 'You have successfully signed up!')
-        res.redirect('/signin')
-      })
-      .catch(error => next(error))
+    userServices.signUp(req, (err, data) => {
+      if (err) next(err)
+      req.flash('success_msg', 'You have successfully signed up!')
+      res.redirect('/signin')
+    })
   },
   signInPage: (req, res) => {
     res.render('signin')
@@ -62,7 +46,7 @@ const userController = {
           followersCount: user.Followers ? user.Followers.length : 0,
           favoritedCount: user.FavoritedRestaurants ? user.FavoritedRestaurants.length : 0,
           isSelf: req.user ? req.user.id === user.id : false,
-          isFollowed: req.user ? req.user.Followings.some(f => f.id === user.idreq.user) : false
+          isFollowed: req.user ? req.user.Followings.some(f => f.id === user.id) : false
         }
         res.render('users/profile', { user })
       })
